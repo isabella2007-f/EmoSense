@@ -1,11 +1,128 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>EmoSense</title>
-</head>
-<body>
-    <h1>EmoSense — Backend OK</h1>
-    <p>El backend está funcionando. El frontend viene en el siguiente paso.</p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}EmoSense — Inicio{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="row justify-content-center text-center mt-4 mb-5">
+    <div class="col-lg-7 col-md-9">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="bi bi-emoji-smile-fill text-warning me-2"></i>EmoSense
+        </h1>
+        <p class="lead text-secondary mb-4">
+            Identifica tu estado emocional a partir de tu expresión facial con inteligencia artificial.
+            Carga una foto o usa tu cámara y recibe música e imágenes personalizadas según cómo te sientes.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('main.capture_page') }}" class="btn btn-warning btn-lg fw-semibold px-4">
+                <i class="bi bi-camera-fill me-2"></i>Comenzar análisis
+            </a>
+            <a href="{{ url_for('main.history_page') }}" class="btn btn-outline-secondary btn-lg px-4">
+                <i class="bi bi-clock-history me-2"></i>Ver historial
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Iconos decorativos de emociones -->
+<div class="row justify-content-center mb-5">
+    <div class="col-auto">
+        <div class="d-flex gap-3 flex-wrap justify-content-center">
+
+            <div class="text-center" title="Felicidad">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#FFC107;">
+                    <i class="bi bi-emoji-laughing-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Felicidad</small>
+            </div>
+
+            <div class="text-center" title="Tristeza">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#2196F3;">
+                    <i class="bi bi-emoji-frown-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Tristeza</small>
+            </div>
+
+            <div class="text-center" title="Enojo">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#F44336;">
+                    <i class="bi bi-emoji-angry-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Enojo</small>
+            </div>
+
+            <div class="text-center" title="Miedo">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#9C27B0;">
+                    <i class="bi bi-emoji-dizzy-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Miedo</small>
+            </div>
+
+            <div class="text-center" title="Sorpresa">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#FF9800;">
+                    <i class="bi bi-emoji-surprise-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Sorpresa</small>
+            </div>
+
+            <div class="text-center" title="Disgusto">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#4CAF50;">
+                    <i class="bi bi-emoji-expressionless-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Disgusto</small>
+            </div>
+
+            <div class="text-center" title="Neutralidad">
+                <div class="emotion-icon rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1"
+                     style="width:52px;height:52px;background-color:#9E9E9E;">
+                    <i class="bi bi-emoji-neutral-fill fs-4 text-white"></i>
+                </div>
+                <small class="text-secondary">Neutralidad</small>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Tarjetas de características -->
+<div class="row g-4 justify-content-center mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 bg-dark text-white text-center p-3">
+            <div class="card-body">
+                <i class="bi bi-camera-video-fill fs-1 text-warning mb-3"></i>
+                <h5 class="card-title">Captura en tiempo real</h5>
+                <p class="card-text text-secondary small">
+                    Usa tu cámara o sube una foto directamente desde tu dispositivo.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 bg-dark text-white text-center p-3">
+            <div class="card-body">
+                <i class="bi bi-cpu-fill fs-1 text-warning mb-3"></i>
+                <h5 class="card-title">IA con DeepFace</h5>
+                <p class="card-text text-secondary small">
+                    Detecta 7 emociones básicas con un modelo de visión por computadora.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 bg-dark text-white text-center p-3">
+            <div class="card-body">
+                <i class="bi bi-music-note-beamed fs-1 text-warning mb-3"></i>
+                <h5 class="card-title">Recomendaciones personalizadas</h5>
+                <p class="card-text text-secondary small">
+                    Recibe una imagen y una canción acorde a tu estado emocional detectado.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

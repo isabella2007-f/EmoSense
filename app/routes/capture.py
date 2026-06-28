@@ -31,9 +31,11 @@ def save_image(img_bgr: np.ndarray, upload_folder: str) -> str:
 @capture_bp.route('/analyze', methods=['POST'])
 def analyze():
     img_bgr = None
+    save = True  # default: persist to DB (preserves current behavior)
 
     # Handle webcam frame sent as base64
     if request.is_json and 'image' in request.json:
+        save = bool(request.json.get('save', True))
         try:
             data = request.json['image']
             if ',' in data:
@@ -67,37 +69,42 @@ def analyze():
     if not ok:
         return jsonify({'success': False, 'error': error}), 422
 
-    image_path = save_image(img_bgr, current_app.config['UPLOAD_FOLDER'])
-
-    analysis = FacialAnalysis(
-        image_path=image_path,
-        detected_emotion=result['dominant_emotion'],
-        confidence_score=result['confidence'],
-        all_scores=json.dumps(result['all_scores'])
-    )
-    db.session.add(analysis)
-    db.session.flush()
-
     recommendation = get_recommendation(result['dominant_emotion'])
 
-    history_entry = AnalysisHistory(
-        analysis_id=analysis.id,
-        recommendation_id=recommendation.id if recommendation else None
-    )
-    db.session.add(history_entry)
+    if save:
+        image_path = save_image(img_bgr, current_app.config['UPLOAD_FOLDER'])
 
-    # Enforce max history limit (FIFO)
-    max_history = current_app.config['MAX_HISTORY']
-    count = AnalysisHistory.query.count()
-    if count > max_history:
-        oldest = AnalysisHistory.query.order_by(AnalysisHistory.created_at.asc()).first()
-        db.session.delete(oldest)
+        analysis = FacialAnalysis(
+            image_path=image_path,
+            detected_emotion=result['dominant_emotion'],
+            confidence_score=result['confidence'],
+            all_scores=json.dumps(result['all_scores'])
+        )
+        db.session.add(analysis)
+        db.session.flush()
 
-    db.session.commit()
+        history_entry = AnalysisHistory(
+            analysis_id=analysis.id,
+            recommendation_id=recommendation.id if recommendation else None
+        )
+        db.session.add(history_entry)
+
+        # Enforce max history limit (FIFO)
+        max_history = current_app.config['MAX_HISTORY']
+        count = AnalysisHistory.query.count()
+        if count > max_history:
+            oldest = AnalysisHistory.query.order_by(AnalysisHistory.created_at.asc()).first()
+            db.session.delete(oldest)
+
+        db.session.commit()
+        analysis_id = analysis.id
+    else:
+        image_path = None
+        analysis_id = None
 
     return jsonify({
         'success': True,
-        'analysis_id': analysis.id,
+        'analysis_id': analysis_id,
         'emotion': result['dominant_emotion'],
         'confidence': round(result['confidence'] * 100, 1),
         'all_scores': {k: round(v * 100, 1) for k, v in result['all_scores'].items()},

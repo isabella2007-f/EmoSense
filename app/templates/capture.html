@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}EmoSense — Captura{% endblock %}
+{% block main_class %}container-fluid px-3 px-md-4{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+
+    <h2 class="mb-4 fw-semibold">
+      <i class="bi bi-camera-fill text-warning me-2"></i>Analizar expresión
+    </h2>
+
+    <!-- ══════════ ESTADO: capturing ══════════ -->
+    <div id="section-capturing">
+
+      <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+          <button class="nav-link active" type="button"
+                  data-bs-toggle="tab" data-bs-target="#tab-upload">
+            <i class="bi bi-upload me-1"></i>Subir imagen
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" id="tab-camera-btn" type="button"
+                  data-bs-toggle="tab" data-bs-target="#tab-camera">
+            <i class="bi bi-camera-video me-1"></i>Cámara
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="tab-upload" class="tab-pane fade show active">
+
+          <!-- Zona de drag & drop -->
+          <div id="drop-zone"
+               class="drop-zone rounded-3 text-center text-secondary mb-3
+                      d-flex flex-column align-items-center justify-content-center"
+               style="min-height:62vh;">
+            <i class="bi bi-cloud-arrow-up-fill mb-3 d-block text-warning"
+               style="font-size:4rem;"></i>
+            <p class="fs-5 mb-3">Arrastra una imagen aquí o haz clic para seleccionar</p>
+            <span class="btn btn-outline-warning">
+              <i class="bi bi-folder2-open me-1"></i>Seleccionar archivo
+            </span>
+            <p class="small mt-3 mb-0 text-muted">Formatos: JPG, PNG &nbsp;·&nbsp; Mínimo 200&times;200 px</p>
+            <input type="file" id="file-input" accept=".jpg,.jpeg,.png" class="d-none">
+          </div>
+
+          <!-- Vista previa (oculta hasta que haya imagen) -->
+          <div id="preview-area" class="d-none">
+            <div class="card bg-dark border-secondary">
+              <div class="card-body text-center p-3">
+                <img id="preview-img" src="" alt="Vista previa"
+                     class="img-fluid rounded mb-3 d-block mx-auto"
+                     style="max-height:68vh;object-fit:contain;">
+                <div class="d-flex gap-2 justify-content-center">
+                  <button id="btn-confirm" type="button" class="btn btn-warning fw-semibold">
+                    <i class="bi bi-check-circle-fill me-1"></i>Confirmar y analizar
+                  </button>
+                  <button id="btn-cancel" type="button" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /tab-upload -->
+
+        <!-- ══════ TAB: Cámara en tiempo real ══════ -->
+        <div id="tab-camera" class="tab-pane fade">
+
+          <!-- Estado inicial -->
+          <div id="cam-start" class="text-center py-5">
+            <i class="bi bi-camera-video-fill text-warning mb-3 d-block" style="font-size:4rem;"></i>
+            <p class="fs-5 text-secondary mb-3">Activa la cámara para analizar tu expresión en tiempo real</p>
+            <button id="btn-start-camera" type="button" class="btn btn-warning fw-semibold btn-lg">
+              <i class="bi bi-camera-video me-1"></i>Activar cámara
+            </button>
+          </div>
+
+          <!-- Cámara activa: video + meme + resultados -->
+          <div id="cam-active" class="d-none">
+
+            <!-- Fila superior: video (8) + meme (4) — altura fijada por el wrapper del video -->
+            <div class="row g-3 mb-3 align-items-stretch">
+
+              <!-- Columna: video -->
+              <div class="col-md-8">
+                <div class="position-relative bg-black rounded-3 overflow-hidden"
+                     style="height:65vh;">
+                  <video id="cam-video" autoplay playsinline muted
+                         style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+                  <!-- Indicador discreto de petición en curso -->
+                  <div id="cam-indicator" class="d-none position-absolute bottom-0 start-0 m-2">
+                    <span class="badge bg-dark bg-opacity-75 text-warning small">
+                      <span class="spinner-grow spinner-grow-sm me-1"
+                            role="status" aria-hidden="true"></span>Analizando&hellip;
+                    </span>
+                  </div>
+                </div>
+                <p id="cam-status" class="text-secondary small text-center mt-2 mb-2"
+                   aria-live="polite"></p>
+                <div class="text-center">
+                  <button id="btn-stop-camera" type="button" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-camera-video-off me-1"></i>Detener cámara
+                  </button>
+                </div>
+              </div>
+
+              <!-- Columna: meme de la emoción detectada -->
+              <div class="col-md-4 d-flex flex-column">
+                <!-- Placeholder hasta primera detección -->
+                <div id="cam-waiting"
+                     class="d-flex align-items-center justify-content-center text-center
+                            text-secondary flex-grow-1 rounded-3
+                            border border-secondary border-opacity-25">
+                  <div>
+                    <i class="bi bi-person-bounding-box mb-2 d-block" style="font-size:3rem;"></i>
+                    <p class="mb-0">Apunta tu rostro<br>a la cámara&hellip;</p>
+                  </div>
+                </div>
+                <!-- Meme (oculto hasta primera detección) -->
+                <div id="cam-meme" class="d-none flex-grow-1">
+                  <img id="cam-meme-img" src="" alt=""
+                       class="w-100 rounded-3"
+                       style="object-fit:cover;height:65vh;">
+                </div>
+                <!-- Botón mute — respaldo si el autoplay con sonido fue bloqueado -->
+                <div class="text-center mt-2">
+                  <button id="btn-mute-camera" type="button"
+                          class="btn btn-sm btn-outline-secondary opacity-75">
+                    <i class="bi bi-volume-up-fill me-1"></i>Silenciar
+                  </button>
+                </div>
+              </div>
+
+            </div><!-- /.row video+meme -->
+
+            <!-- Fila inferior: badge + confianza + barras (ancho completo) -->
+            <div id="cam-result" class="d-none pt-3 border-top border-secondary border-opacity-25">
+              <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+                <span id="cam-badge"
+                      class="badge rounded-pill px-3 py-2 d-flex align-items-center gap-2 fs-6">
+                  <i id="cam-icon" class="bi"></i>
+                  <span id="cam-label"></span>
+                </span>
+                <div class="lh-1">
+                  <span id="cam-confidence" class="display-6 fw-bold text-white"></span>
+                  <span class="fs-4 text-secondary">%</span>
+                </div>
+              </div>
+              <div id="cam-scores"></div>
+            </div>
+
+          </div><!-- /#cam-active -->
+
+          <!-- Cámara no disponible -->
+          <div id="cam-unavailable" class="d-none text-center py-5 text-secondary">
+            <i class="bi bi-camera-video-off text-danger mb-3 d-block" style="font-size:3rem;"></i>
+            <p class="mb-2">No se pudo acceder a la cámara.</p>
+            <p class="small mb-0">Usa la pestaña "Subir imagen" para analizar una foto.</p>
+          </div>
+
+        </div><!-- /#tab-camera -->
+
+      </div><!-- /tab-content -->
+    </div><!-- /#section-capturing -->
+
+    <!-- ══════════ ESTADO: processing ══════════ -->
+    <div id="section-processing" class="d-none text-center py-5">
+      <div class="spinner-border text-warning mb-3"
+           style="width:3.5rem;height:3.5rem;" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="fs-5 text-secondary mb-1">Analizando tu expresión&hellip;</p>
+      <p class="small text-muted">Esto puede tardar unos segundos la primera vez.</p>
+    </div>
+
+    <!-- ══════════ ESTADO: result ══════════ -->
+    <div id="section-result" class="d-none">
+      <div class="row g-4">
+
+        <!-- ── Columna izquierda: imagen · emoción · scores ── -->
+        <div class="col-lg-7">
+          <img id="result-img" src="" alt="Imagen analizada"
+               class="img-fluid rounded-3 mb-3 w-100"
+               style="max-height:62vh;object-fit:cover;">
+
+          <!-- Badge emoción + porcentaje de confianza -->
+          <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+            <span id="result-badge"
+                  class="badge rounded-pill px-3 py-2 d-flex align-items-center gap-2 fs-6">
+              <i id="result-icon" class="bi"></i>
+              <span id="result-label"></span>
+            </span>
+            <div class="lh-1">
+              <span id="result-confidence" class="display-6 fw-bold text-white"></span>
+              <span class="fs-4 text-secondary">%</span>
+            </div>
+          </div>
+
+          <!-- Barras de las 7 emociones -->
+          <div id="result-scores"></div>
+        </div>
+
+        <!-- ── Columna derecha: recomendación ── -->
+        <div class="col-lg-5 d-flex flex-column">
+          <div id="result-rec-card" class="card bg-dark border-2 flex-grow-1"></div>
+        </div>
+
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+        <button id="btn-new-analysis" type="button" class="btn btn-warning fw-semibold">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Nuevo análisis
+        </button>
+        <a href="{{ url_for('main.history_page') }}" class="btn btn-outline-secondary">
+          <i class="bi bi-clock-history me-1"></i>Ir al historial
+        </a>
+      </div>
+    </div>
+
+    <!-- ══════════ ESTADO: error ══════════ -->
+    <div id="section-error" class="d-none text-center py-5">
+      <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"></i>
+      <p id="error-message" class="fs-5 text-secondary mb-4"></p>
+      <button id="btn-retry" type="button" class="btn btn-outline-warning">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Reintentar
+      </button>
+    </div>
+
+    <!-- Reproductor de audio para modo cámara -->
+    <audio id="camera-audio" loop preload="none"></audio>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/state.js') }}"></script>
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+{% endblock %}
