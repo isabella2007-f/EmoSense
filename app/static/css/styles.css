@@ -130,6 +130,43 @@ main.container {
   color: #FFC107 !important;
 }
 
+/* ── Modo claro: overrides para valores hardcodeados en oscuro ── */
+[data-bs-theme="light"] .drop-zone {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-bs-theme="light"] .drop-zone:hover,
+[data-bs-theme="light"] .drop-zone--active {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+[data-bs-theme="light"] .progress {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] #result-img {
+  border-color: rgba(0, 0, 0, 0.1);
+  background-color: #efefef;
+}
+
+[data-bs-theme="light"] .rec-img {
+  background-color: #e0e0e0;
+}
+
+[data-bs-theme="light"] .history-card .card-img-top {
+  background-color: #efefef;
+}
+
+[data-bs-theme="light"] .history-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* text-white hardcodeado en JS (barras de scores) invisible en modo claro */
+[data-bs-theme="light"] .fw-bold.text-white,
+[data-bs-theme="light"] .text-white {
+  color: var(--bs-body-color) !important;
+}
+
 /* ── Responsive — pantallas pequeñas ────────────────────────── */
 @media (max-width: 576px) {
   #result-confidence,

@@ -21,9 +21,15 @@
           </button>
         </li>
         <li class="nav-item">
+          <button class="nav-link" id="tab-snapshot-btn" type="button"
+                  data-bs-toggle="tab" data-bs-target="#tab-snapshot">
+            <i class="bi bi-camera me-1"></i>Tomar foto
+          </button>
+        </li>
+        <li class="nav-item">
           <button class="nav-link" id="tab-camera-btn" type="button"
                   data-bs-toggle="tab" data-bs-target="#tab-camera">
-            <i class="bi bi-camera-video me-1"></i>Cámara
+            <i class="bi bi-camera-video me-1"></i>Cámara en vivo
           </button>
         </li>
       </ul>
@@ -66,6 +72,63 @@
           </div>
 
         </div><!-- /tab-upload -->
+
+        <!-- ══════ TAB: Tomar foto (snapshot) ══════ -->
+        <div id="tab-snapshot" class="tab-pane fade">
+
+          <!-- Estado inicial -->
+          <div id="snap-start" class="text-center py-5">
+            <i class="bi bi-camera-fill text-warning mb-3 d-block" style="font-size:4rem;"></i>
+            <p class="fs-5 text-secondary mb-3">Activa la cámara, encuadra tu rostro y toma la foto cuando estés listo</p>
+            <button id="btn-start-snap" type="button" class="btn btn-warning fw-semibold btn-lg">
+              <i class="bi bi-camera me-1"></i>Activar cámara
+            </button>
+          </div>
+
+          <!-- Cámara activa: video en vivo + botón capturar -->
+          <div id="snap-active" class="d-none">
+            <div class="position-relative bg-black rounded-3 overflow-hidden mb-3"
+                 style="height:65vh;">
+              <video id="snap-video" autoplay playsinline muted
+                     style="width:100%;height:100%;object-fit:cover;display:block;"></video>
+            </div>
+            <div class="d-flex gap-2 justify-content-center">
+              <button id="btn-capture-snap" type="button" class="btn btn-warning fw-semibold btn-lg">
+                <i class="bi bi-camera-fill me-1"></i>Tomar foto
+              </button>
+              <button id="btn-cancel-snap-cam" type="button" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Cancelar
+              </button>
+            </div>
+          </div>
+
+          <!-- Vista previa de la foto tomada (cámara ya apagada) -->
+          <div id="snap-preview" class="d-none">
+            <div class="card bg-dark border-secondary">
+              <div class="card-body text-center p-3">
+                <img id="snap-preview-img" src="" alt="Foto tomada"
+                     class="img-fluid rounded mb-3 d-block mx-auto"
+                     style="max-height:65vh;object-fit:contain;">
+                <div class="d-flex gap-2 justify-content-center">
+                  <button id="btn-confirm-snap" type="button" class="btn btn-warning fw-semibold">
+                    <i class="bi bi-check-circle-fill me-1"></i>Confirmar y analizar
+                  </button>
+                  <button id="btn-retake-snap" type="button" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Repetir
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cámara no disponible -->
+          <div id="snap-unavailable" class="d-none text-center py-5 text-secondary">
+            <i class="bi bi-camera-video-off text-danger mb-3 d-block" style="font-size:3rem;"></i>
+            <p class="mb-2">No se pudo acceder a la cámara.</p>
+            <p class="small mb-0">Usa la pestaña "Subir imagen" para analizar una foto.</p>
+          </div>
+
+        </div><!-- /#tab-snapshot -->
 
         <!-- ══════ TAB: Cámara en tiempo real ══════ -->
         <div id="tab-camera" class="tab-pane fade">

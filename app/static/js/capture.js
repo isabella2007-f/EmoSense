@@ -60,6 +60,7 @@
     previewImg.src = '';
     previewArea.classList.add('d-none');
     dropZone.classList.remove('d-none');
+    resetSnap();
     setState('capturing');
   }
 
@@ -371,6 +372,125 @@
     }
     updateMuteButton();
   });
+
+  // ════════════════════════════════════════════════════════════════
+  // MODO SNAPSHOT — cámara abre → tomar foto → cámara cierra → analizar
+  // ════════════════════════════════════════════════════════════════
+
+  const snapStart        = document.getElementById('snap-start');
+  const snapActive       = document.getElementById('snap-active');
+  const snapPreview      = document.getElementById('snap-preview');
+  const snapUnavailable  = document.getElementById('snap-unavailable');
+  const snapVideo        = document.getElementById('snap-video');
+  const snapPreviewImg   = document.getElementById('snap-preview-img');
+  const btnStartSnap     = document.getElementById('btn-start-snap');
+  const btnCaptureSnap   = document.getElementById('btn-capture-snap');
+  const btnCancelSnapCam = document.getElementById('btn-cancel-snap-cam');
+  const btnConfirmSnap   = document.getElementById('btn-confirm-snap');
+  const btnRetakeSnap    = document.getElementById('btn-retake-snap');
+  const tabSnapshotBtn   = document.getElementById('tab-snapshot-btn');
+
+  let snapStream  = null;
+  let snapDataUrl = null;
+
+  btnStartSnap.addEventListener('click', startSnapCamera);
+  btnCaptureSnap.addEventListener('click', captureSnap);
+  btnCancelSnapCam.addEventListener('click', resetSnap);
+  btnConfirmSnap.addEventListener('click', submitSnap);
+  btnRetakeSnap.addEventListener('click', retakeSnap);
+  tabSnapshotBtn.addEventListener('hide.bs.tab', resetSnap);
+  window.addEventListener('pagehide', resetSnap);
+
+  async function startSnapCamera() {
+    try {
+      snapStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    } catch {
+      snapStart.classList.add('d-none');
+      snapUnavailable.classList.remove('d-none');
+      return;
+    }
+    snapVideo.srcObject = snapStream;
+    snapStart.classList.add('d-none');
+    snapActive.classList.remove('d-none');
+  }
+
+  function stopSnapStream() {
+    if (snapStream) {
+      snapStream.getTracks().forEach(t => t.stop());
+      snapStream = null;
+    }
+    snapVideo.srcObject = null;
+  }
+
+  function resetSnap() {
+    stopSnapStream();
+    snapActive.classList.add('d-none');
+    snapPreview.classList.add('d-none');
+    snapUnavailable.classList.add('d-none');
+    snapStart.classList.remove('d-none');
+    snapDataUrl      = null;
+    snapPreviewImg.src = '';
+  }
+
+  function captureSnap() {
+    const w = snapVideo.videoWidth  || 640;
+    const h = snapVideo.videoHeight || 480;
+    const canvas = document.createElement('canvas');
+    canvas.width  = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(snapVideo, 0, 0, w, h);
+    snapDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+    stopSnapStream();
+
+    snapPreviewImg.src = snapDataUrl;
+    snapActive.classList.add('d-none');
+    snapPreview.classList.remove('d-none');
+  }
+
+  function retakeSnap() {
+    snapPreviewImg.src = '';
+    snapDataUrl = null;
+    snapPreview.classList.add('d-none');
+    startSnapCamera();
+  }
+
+  async function submitSnap() {
+    if (!snapDataUrl) return;
+    btnConfirmSnap.disabled = true;
+    setState('processing');
+
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 20000);
+
+    try {
+      const response = await fetch('/analyze', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ image: snapDataUrl }),
+        signal:  controller.signal,
+      });
+      clearTimeout(tid);
+      const data = await response.json();
+
+      if (data.success) {
+        renderResult(data);
+        setState('result');
+      } else {
+        document.getElementById('error-message').textContent = data.error;
+        setState('error');
+      }
+    } catch (err) {
+      clearTimeout(tid);
+      document.getElementById('error-message').textContent =
+        err.name === 'AbortError'
+          ? 'La solicitud tardó demasiado. Intenta de nuevo.'
+          : 'No se pudo conectar con el servidor. Intenta de nuevo.';
+      setState('error');
+    } finally {
+      btnConfirmSnap.disabled = false;
+    }
+  }
 
 })();
 

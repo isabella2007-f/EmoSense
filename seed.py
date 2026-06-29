@@ -14,9 +14,9 @@ EMOTIONS = [
 
 RECOMMENDATIONS = {
     'happy': [
-        {'image_url': '/static/img/memes/st,medium,507x507-pad,600x600,f8f8f8.jpg', 'song_title': 'Happy', 'song_artist': 'Pharrell Williams', 'song_url': 'https://www.youtube.com/watch?v=ZbZSe6N_BXs'},
-        {'image_url': '/static/img/memes/ishowspeed-upset.png', 'song_title': 'Good as Hell', 'song_artist': 'Lizzo', 'song_url': 'https://www.youtube.com/watch?v=SmbmeOgWsqE'},
-        {'image_url': '/static/img/memes/G1gLmFTWkAEnsYu.jpg', 'song_title': 'Can\'t Stop the Feeling', 'song_artist': 'Justin Timberlake', 'song_url': 'https://www.youtube.com/watch?v=ru0K8uYEZWw'},
+        {'image_url': '/static/img/memes/feliz1.jpg', 'song_title': 'Happy', 'song_artist': 'Pharrell Williams', 'song_url': 'https://www.youtube.com/watch?v=ZbZSe6N_BXs'},
+        {'image_url': '/static/img/memes/feliz2.png', 'song_title': 'Good as Hell', 'song_artist': 'Lizzo', 'song_url': 'https://www.youtube.com/watch?v=SmbmeOgWsqE'},
+        {'image_url': '/static/img/memes/feliz3.jpg', 'song_title': 'Can\'t Stop the Feeling', 'song_artist': 'Justin Timberlake', 'song_url': 'https://www.youtube.com/watch?v=ru0K8uYEZWw'},
     ],
     'sad': [
         {'image_url': '/static/img/memes/triste1.jpg', 'song_title': 'The Night We Met', 'song_artist': 'Lord Huron', 'song_url': 'https://www.youtube.com/watch?v=KtlgYxa6BMU'},

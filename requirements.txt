@@ -2,8 +2,6 @@ Flask>=3.0.0
 Flask-SQLAlchemy>=3.1.0
 Flask-Migrate>=4.0.0
 python-dotenv>=1.0.0
-deepface
-opencv-python-headless
-numpy
-Pillow
+deepface==0.0.93
 gunicorn
+Pillow
