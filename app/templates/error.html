@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}EmoSense — Error {{ error_code }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-sm-8 col-md-6 col-lg-5 text-center py-5">
+
+    <p class="display-1 fw-bold text-warning mb-0">{{ error_code }}</p>
+
+    <i class="bi bi-exclamation-triangle-fill text-danger fs-1 my-3 d-block"></i>
+
+    <p class="fs-5 text-secondary mb-4">{{ error_message }}</p>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{{ url_for('main.index') }}" class="btn btn-warning fw-semibold">
+        <i class="bi bi-house-fill me-1"></i>Ir al inicio
+      </a>
+      <a href="{{ url_for('main.capture_page') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-camera-fill me-1"></i>Nuevo análisis
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

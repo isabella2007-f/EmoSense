@@ -20,7 +20,7 @@ def analyze_emotion(img: np.ndarray) -> tuple[bool, dict, str]:
         result = DeepFace.analyze(
             img_path=img,
             actions=['emotion'],
-            detector_backend='retinaface',
+            detector_backend='opencv',
             enforce_detection=True,
             silent=True
         )
