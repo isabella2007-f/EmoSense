@@ -1,17 +1,23 @@
-from app import create_app, db
-from app.models.emotion import Emotion
-from app.models.recommendation import Recommendation
+# seed.py — Rellena la base de datos con los datos iniciales
+# Se ejecuta UNA SOLA VEZ antes de usar la app por primera vez
 
+from app import create_app, db                    # Importa la app y el objeto de base de datos
+from app.models.emotion import Emotion            # Modelo de la tabla de emociones
+from app.models.recommendation import Recommendation  # Modelo de la tabla de recomendaciones
+
+# Lista de las 7 emociones básicas que detecta DeepFace
 EMOTIONS = [
-    {'name': 'happy',    'label_es': 'Felicidad', 'color_hex': '#FFD700'},
-    {'name': 'sad',      'label_es': 'Tristeza',  'color_hex': '#4A90D9'},
-    {'name': 'angry',    'label_es': 'Enojo',     'color_hex': '#E74C3C'},
-    {'name': 'fear',     'label_es': 'Miedo',     'color_hex': '#8E44AD'},
-    {'name': 'surprise', 'label_es': 'Sorpresa',  'color_hex': '#F39C12'},
-    {'name': 'disgust',  'label_es': 'Disgusto',  'color_hex': '#27AE60'},
-    {'name': 'neutral',  'label_es': 'Neutral',   'color_hex': '#95A5A6'},
+    {'name': 'happy',    'label_es': 'Felicidad', 'color_hex': '#FFD700'},  # Amarillo
+    {'name': 'sad',      'label_es': 'Tristeza',  'color_hex': '#4A90D9'},  # Azul
+    {'name': 'angry',    'label_es': 'Enojo',     'color_hex': '#E74C3C'},  # Rojo
+    {'name': 'fear',     'label_es': 'Miedo',     'color_hex': '#8E44AD'},  # Morado
+    {'name': 'surprise', 'label_es': 'Sorpresa',  'color_hex': '#F39C12'},  # Naranja
+    {'name': 'disgust',  'label_es': 'Disgusto',  'color_hex': '#27AE60'},  # Verde
+    {'name': 'neutral',  'label_es': 'Neutral',   'color_hex': '#95A5A6'},  # Gris
 ]
 
+# Diccionario de recomendaciones: 3 opciones de imagen + canción por cada emoción
+# La app elige una al azar cada vez que detecta esa emoción
 RECOMMENDATIONS = {
     'happy': [
         {'image_url': '/static/img/memes/feliz1.jpg', 'song_title': 'Happy', 'song_artist': 'Pharrell Williams', 'song_url': 'https://www.youtube.com/watch?v=ZbZSe6N_BXs'},
@@ -28,7 +34,6 @@ RECOMMENDATIONS = {
         {'image_url': '/static/img/memes/enojo2.jpg', 'song_title': 'In The End', 'song_artist': 'Linkin Park', 'song_url': 'https://www.youtube.com/watch?v=eVTXPUF4Oz4'},
         {'image_url': '/static/img/memes/enojo3.jpg', 'song_title': 'Killing in the Name', 'song_artist': 'Rage Against the Machine', 'song_url': 'https://www.youtube.com/watch?v=bWXazVhlyxQ'},
     ],
-
     'fear': [
         {'image_url': '/static/img/memes/miedo1.jpg', 'song_title': 'Breathe (2 AM)', 'song_artist': 'Anna Nalick', 'song_url': 'https://www.youtube.com/watch?v=F-vne8LDSEo'},
         {'image_url': '/static/img/memes/miedo2.jpg', 'song_title': 'Don\'t Panic', 'song_artist': 'Coldplay', 'song_url': 'https://www.youtube.com/watch?v=yNMoFbFpBkE'},
@@ -53,26 +58,30 @@ RECOMMENDATIONS = {
 
 
 def run_seed():
-    app = create_app()
-    with app.app_context():
+    app = create_app()              # Crea la app para tener acceso a la base de datos
+    with app.app_context():         # Activa el contexto de Flask (necesario para usar db)
+
         if Emotion.query.count() > 0:
+            # Si ya hay emociones en la base de datos, no vuelve a insertar
             print("La base de datos ya tiene datos. Seed omitido.")
             return
 
+        # Inserta las 7 emociones en la tabla 'emotions'
         for e in EMOTIONS:
-            emotion = Emotion(**e)
-            db.session.add(emotion)
-        db.session.flush()
+            emotion = Emotion(**e)      # Crea un objeto Emotion con los datos del diccionario
+            db.session.add(emotion)     # Lo agrega a la sesión (aún no se guarda en disco)
+        db.session.flush()              # Asigna IDs a las emociones sin hacer commit todavía
 
+        # Inserta las recomendaciones vinculadas a cada emoción
         for emotion_name, recs in RECOMMENDATIONS.items():
-            emotion = Emotion.query.filter_by(name=emotion_name).first()
+            emotion = Emotion.query.filter_by(name=emotion_name).first()  # Busca la emoción por nombre
             for r in recs:
-                rec = Recommendation(emotion_id=emotion.id, **r)
-                db.session.add(rec)
+                rec = Recommendation(emotion_id=emotion.id, **r)  # Crea la recomendación con el FK
+                db.session.add(rec)     # La agrega a la sesión
 
-        db.session.commit()
+        db.session.commit()  # Guarda todo en la base de datos de una sola vez
         print(f"Seed completado: {len(EMOTIONS)} emociones, {sum(len(v) for v in RECOMMENDATIONS.values())} recomendaciones.")
 
 
 if __name__ == '__main__':
-    run_seed()
+    run_seed()  # Ejecuta el seed solo si corres "python seed.py" directamente
